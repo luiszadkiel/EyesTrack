@@ -1,0 +1,24 @@
+{
+  "name": "eyetrack",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node main.js",
+    "dev": "nodemon main.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "eyetrack": "file:",
+    "socket.io": "^4.8.1",
+    "wrtc": "^0.4.7",
+    "ws": "^8.18.1"
+  }
+}
