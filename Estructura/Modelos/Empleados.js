@@ -17,7 +17,8 @@ const Usuario = {
                 if (err) {
                     console.error("Error al insertar el usuario:", err.message);
                     db.run("ROLLBACK");
-                } else {
+                } else { 
+                
                     console.log("Usuario agregado correctamente.");
                     db.run("COMMIT");
                 }

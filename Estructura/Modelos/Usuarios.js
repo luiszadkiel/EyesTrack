@@ -69,6 +69,7 @@ const login = new Login();
 // Ejemplo de uso para registrar un nuevo usuario
 /*login.registrarUsuario("Hendrix Rubio", "password123", 1, (err, result) => {
     if (err) {
+    
         console.error(err);
     } else {
         console.log(result);

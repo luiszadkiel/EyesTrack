@@ -7,7 +7,6 @@ const dbPath = "C:/Users/adria/OneDrive/Escritorio/Competencia/PROYECTO.db";
 
 // Verificar si la base de datos existe antes de intentar abrirla
 if (!fs.existsSync(dbPath)) {
-    console.error("❌ La base de datos no existe en la ruta especificada.");
     process.exit(1); // Termina el programa si la base de datos no existe
 } else {
     console.log("✅ La base de datos existe. Conectando...");
