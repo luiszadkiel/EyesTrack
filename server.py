@@ -1,47 +1,82 @@
-from ultralytics import YOLO
+# Esquema básico para server.py
+from flask import Flask, request, jsonify
 import cv2
-import base64
 import numpy as np
-from io import BytesIO
-from PIL import Image
-from flask import Flask, Response
+import torch
+from threading import Thread
+import time
+from ultralytics import YOLO  
 
 app = Flask(__name__)
 
-# Cargar el modelo YOLOv8
-model = YOLO("yolov8s.pt")  # Asegúrate de que tienes el archivo yolov8s.pt
-
-# Función para capturar la cámara y realizar la detección de objetos
-@app.route('/video_feed')
-def video_feed():
-    def generate():
-        cap = cv2.VideoCapture(0)  # Usar la cámara predeterminada (0 es la cámara por defecto)
-        while True:
-            ret, frame = cap.read()
-            if not ret:
-                break
-
-            # Hacer detección con YOLO
-            results = model(frame)  # Realizar la detección en la imagen del frame
-
-            # Dibujar las cajas de los objetos detectados
-            for box in results[0].boxes.xywh.tolist():  # Obtener las coordenadas de las cajas (xywh)
-                x1, y1, w, h = map(int, box[:4])  # Convertir las coordenadas a enteros
-                x2, y2 = x1 + w, y1 + h  # Calcular el punto final de la caja
-                cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 0, 0), 2)  # Dibujar la caja en el frame
-
-            # Convertir el frame a formato JPEG y luego a base64
-            _, jpeg = cv2.imencode('.jpg', frame)  # Convertir la imagen a formato JPEG
-            frame_b64 = base64.b64encode(jpeg.tobytes()).decode('utf-8')  # Convertir a base64 para streaming
-
-            # Retornar el frame en un formato compatible con MJPEG
-            yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + base64.b64decode(frame_b64) + b'\r\n\r\n')
-        cap.release()
-
-    # Devuelve el flujo de video en formato adecuado para streaming
-    return Response(generate(), mimetype='multipart/x-mixed-replace; boundary=frame')
+model = YOLO('pongoElModeloAhora')
 
 
-if __name__ == "__main__":
-    app.run(debug=True, threaded=True)
+# Clases a detectar (ajusta los índices según tu modelo)
+TARGET_CLASSES = ['knife', 'pistol']
+
+def process_video_stream(video_stream):
+    cap = cv2.VideoCapture(video_stream)
+    while cap.isOpened():
+        ret, frame = cap.read()
+        if not ret:
+            break
+            
+        # Detección con YOLO
+        results = model(frame)
+        
+        # Verificar si hay armas o cuchillos
+        detections = results.pandas().xyxy[0]
+        dangerous_objects = detections[detections['name'].isin(TARGET_CLASSES)]
+        
+        if not dangerous_objects.empty:
+            send_alarm(dangerous_objects, frame)
+            
+        time.sleep(0.1)  # Para no saturar el sistema
+    
+    cap.release()
+
+def send_alarm(detections, frame):
+    # Guardar imagen de evidencia
+    timestamp = int(time.time())
+    cv2.imwrite(f"evidence_{timestamp}.jpg", frame)
+    
+    # Enviar notificación
+    # Implementa tu lógica de notificación aquí (webhook, email, SMS, etc.)
+    print(f"¡ALARMA! Objetos peligrosos detectados: {detections['name'].tolist()}")
+    
+    # También podrías hacer una llamada a otra API
+    # requests.post('https://tu-servicio-de-alertas.com/notify', json=payload)
+
+@app.route('/process-video', methods=['POST'])
+def receive_video():
+    if 'video' not in request.files:
+        return jsonify({"error": "No video file provided"}), 400
+        
+    video_file = request.files['video']
+    video_path = f"temp_{int(time.time())}.mp4"
+    video_file.save(video_path)
+    
+    # Iniciar procesamiento en segundo plano
+    thread = Thread(target=process_video_stream, args=(video_path,))
+    thread.daemon = True
+    thread.start()
+    
+    return jsonify({"message": "Video processing started"}), 200
+
+@app.route('/stream', methods=['POST'])
+def receive_stream():
+    # Para recibir una URL de streaming
+    data = request.json
+    if 'stream_url' not in data:
+        return jsonify({"error": "No stream URL provided"}), 400
+    
+    # Iniciar procesamiento en segundo plano
+    thread = Thread(target=process_video_stream, args=(data['stream_url'],))
+    thread.daemon = True
+    thread.start()
+    
+    return jsonify({"message": "Stream processing started"}), 200
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
