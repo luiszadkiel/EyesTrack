@@ -44,3 +44,5 @@ io.on("connection", (socket) => {
 server.listen(8888, () => {
     console.log("Servidor WebRTC en puerto 8888");
 });
+
+
