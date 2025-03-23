@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transmisión en vivo - YOLOv5</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <style>
+        .alert {
+            padding: 10px;
+            margin-top: 10px;
+            background-color: #f44336;
+            color: white;
+            border-radius: 5px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Transmisión en vivo - Detección de objetos con YOLOv5</h1>
+    <div>
+        <img src="http://127.0.0.1:5000/video_feed" width="640" height="480" alt="Transmisión en vivo"/>
+    </div>
+   
+    <h3>Alertas:</h3>
+    <div id="alertBox" class="alert">
+        ¡ALERTA! Se han detectado objetos peligrosos
+        <div id="alertDetails"></div>
+    </div>
+
+    <script>
+        // Conectar al WebSocket
+        const socket = io('http://127.0.0.1:5000');
+        
+        // Mostrar alerta cuando se reciben datos
+        socket.on('alert_update', function(data) {
+            const alertBox = document.getElementById('alertBox');
+            const alertDetails = document.getElementById('alertDetails');
+            
+            // Mostrar la alerta
+            alertBox.style.display = "block";
+            
+            // Detalles sobre la alerta
+            let details = "";
+            if (data.persons_count > 0) {
+                details += `Personas detectadas: ${data.persons_count}<br>`;
+            }
+            if (data.guns_count > 0) {
+                details += `¡ARMAS detectadas: ${data.guns_count}!<br>`;
+            }
+            if (data.knifes_count > 0) {
+                details += `¡CUCHILLOS detectados: ${data.knifes_count}!<br>`;
+            }
+            if (data.danger) {
+                details += `¡SITUACIÓN DE PELIGRO DETECTADA!<br>`;
+            }
+            
+            alertDetails.innerHTML = details;
+            
+            // Auto-ocultar después de 5 segundos
+            setTimeout(function() {
+                alertBox.style.display = "none";
+            }, 5000);
+        });
+    </script>
+</body>
+</html>
