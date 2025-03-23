@@ -11,6 +11,11 @@ const io = socketIo(server);
 // Configuración de la carpeta pública
 app.use(express.static(path.join(__dirname, "public")));
 
+// Servir la página principal
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "views", "index.html"));
+  });
+  
 // WebRTC Signaling
 let peerConnections = {};
 
