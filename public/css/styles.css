@@ -1,0 +1,56 @@
+body {
+    background: #24282f;
+    font-family: 'Alegreya Sans', sans-serif;
+    font-family: 'Serif', serif; /* Fuente elegante Serif */
+    color: #D3D3D3; /* Gris claro (casi blanco) */
+    margin: 0;
+    padding: 0;
+}
+
+#camara {
+    box-shadow: 10px 0 20px rgba(0, 0, 0, 0.6); /* Sombra sutil hacia la derecha */
+    transition: box-shadow 0.3s ease, transform 0.3s ease; /* Suaviza el cambio de sombra y escala */
+}
+
+/* Cambiar la sombra a verde al hacer hover */
+#camara:hover {
+    box-shadow: 10px 0 20px rgba(0, 255, 0, 0.8); /* Sombra verde al hacer hover */
+    transform: scale(1.05); /* Efecto de agrandar ligeramente la imagen */
+}
+
+
+/* Estilos básicos de la alerta */
+.alert {
+    padding: 10px;
+    margin-top: 10px;
+    background-color: #f44336;
+    color: white;
+    border-radius: 5px;
+    display: none;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.8);
+    transition: box-shadow 0.3s, transform 0.3s;
+    animation: bounceIn 0.5s ease-out; /* Animación añadida */
+}
+
+/* Efecto rebote usando keyframes */
+@keyframes bounceIn {
+    0% {
+        transform: scale(0) translateY(20px);
+    }
+    60% {
+        transform: scale(1.1) translateY(-10px);
+    }
+    100% {
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* Efecto al hacer hover o focus sobre la alerta */
+.alert:hover, .alert:focus, .alert:active {
+    box-shadow: 0 8px 16px 3px rgb(255, 45, 17);
+    transform: translateY(-3px) scale(1.05);
+    transform: scale(1.05); /* Efecto de agrandar ligeramente la imagen */
+}
+
+
+

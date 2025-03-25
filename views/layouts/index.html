@@ -1,67 +1,169 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Transmisión en vivo - YOLOv5</title>
+
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/styles.css">
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
-    <style>
-        .alert {
-            padding: 10px;
-            margin-top: 10px;
-            background-color: #f44336;
-            color: white;
-            border-radius: 5px;
-            display: none;
-        }
-    </style>
+
 </head>
+
 <body>
-    <h1>Transmisión en vivo - Detección de objetos con YOLOv5</h1>
-    <div>
-        <img src="http://127.0.0.1:5000/video_feed" width="640" height="480" alt="Transmisión en vivo"/>
+    <div class="row mb-5 ml-5 text-center">
+        <h1 >Transmisión en vivo - Detección de objetos con YOLOv5</h1>
     </div>
-   
-    <h3>Alertas:</h3>
-    <div id="alertBox" class="alert">
-        ¡ALERTA! Se han detectado objetos peligrosos
-        <div id="alertDetails"></div>
+    
+
+    <div class="row">
+        <div  class="col ml-4 ">
+            <!-- Imagen con ancho específico utilizando clases de Bootstrap -->
+            <img id="camara" src="http://127.0.0.1:5000/video_feed" class="img-fluid w-220 h-330" alt="Transmisión en vivo" />
+        </div>
+
+        <div class="col ml-3 ">
+            <h3>Alertas:</h3>
+            <div id="alertBox" class="alert" class="">
+                ¡ALERTA! Se han detectado objetos peligrosos
+                <div id="alertDetails"></div>
+                <div id="ubicacion"></div>
+                <div id="fechaExacta"></div>
+
+            </div>
+        </div>
     </div>
+
+    <div class="row m-lg-4">
+        <div class="col" id="map">
+        </div>
+ 
+    </div>
+
+
+
+
+
+
 
     <script>
         // Conectar al WebSocket
         const socket = io('http://127.0.0.1:5000');
-        
+
         // Mostrar alerta cuando se reciben datos
-        socket.on('alert_update', function(data) {
+        socket.on('alert_update', function (data) {
             const alertBox = document.getElementById('alertBox');
             const alertDetails = document.getElementById('alertDetails');
-            
+
             // Mostrar la alerta
             alertBox.style.display = "block";
-            
+        
             // Detalles sobre la alerta
             let details = "";
             if (data.persons_count > 0) {
                 details += `Personas detectadas: ${data.persons_count}<br>`;
+                 
             }
             if (data.guns_count > 0) {
-                details += `¡ARMAS detectadas: ${data.guns_count}!<br>`;
+                    details += `¡ARMAS detectadas: ${data.guns_count}<br>`;
+                    
+                }
+                if (data.knifes_count > 0) {
+                    details += `¡CUCHILLOS detectados: ${data.knifes_count}<br>`;
+                }
+                if (data.danger) {
+                    details += `¡SITUACIÓN DE PELIGRO DETECTADA!<br>`;
+                    getLocation();
+                    obtenerFechaHoraExacta();
+
+                }
+
+                alertDetails.innerHTML = details;
+
+                // Auto-ocultar después de 5 segundos
+                /*setTimeout(function () {
+                    alertBox.style.display = "none";
+                }, 5000);*/
+            });
+
+            function getLocation() {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(function(position) {
+                        const ubicacions = `Latitud: ${position.coords.latitude}, Longitud: ${position.coords.longitude}`;
+                        document.getElementById("ubicacion").innerHTML = `Ubicación: ${ubicacions}<br>`;
+                    });
+                } else {
+                    alert("Geolocalización no soportada");
+                }
             }
-            if (data.knifes_count > 0) {
-                details += `¡CUCHILLOS detectados: ${data.knifes_count}!<br>`;
+
+            function obtenerFechaHoraExacta() {
+                const fecha = new Date();
+              
+                const dia = String(fecha.getDate()).padStart(2, '0');
+                const mes = String(fecha.getMonth() + 1).padStart(2, '0'); // Los meses empiezan en 0
+                const anio = fecha.getFullYear();
+              
+                const horas = String(fecha.getHours()).padStart(2, '0');
+                const minutos = String(fecha.getMinutes()).padStart(2, '0');
+                const segundos = String(fecha.getSeconds()).padStart(2, '0');
+              
+                const fechaExacta = `${dia}-${mes}-${anio} ${horas}:${minutos}:${segundos}`;
+                document.getElementById("fechaExacta").innerHTML = `fechaExacta: ${fechaExacta}<br>`;
             }
-            if (data.danger) {
-                details += `¡SITUACIÓN DE PELIGRO DETECTADA!<br>`;
-            }
-            
-            alertDetails.innerHTML = details;
-            
-            // Auto-ocultar después de 5 segundos
-            setTimeout(function() {
-                alertBox.style.display = "none";
-            }, 5000);
-        });
+              
+              
     </script>
+
+
+      
+    <script>
+        window.onload = function() {
+            // Crear el mapa y centrarlo
+            const map = L.map('map').setView([18.7357, -70.1627], 8); // Coordenadas para la RD
+      
+            // Cargar el mapa base (OpenStreetMap)
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+      
+            // Definir las provincias (ejemplo con algunos puntos)
+            const provincias = [
+            { nombre: "Santo Domingo", lat: 18.4861, lng: -69.9312, descripcion: "Capital de la República Dominicana" },
+            { nombre: "Santiago", lat: 19.4803, lng: -70.7129, descripcion: "Segunda ciudad más grande" },
+            { nombre: "Puerto Plata", lat: 19.7775, lng: -70.6827, descripcion: "Famosa por sus playas" },
+            { nombre: "La Romana", lat: 18.4237, lng: -68.9431, descripcion: "Destino turístico popular" }
+          ];
+      
+            // Marcar los puntos de las provincias
+            provincias.forEach(provincia => {
+              L.marker([provincia.lat, provincia.lng])
+                .addTo(map)
+                .bindPopup(`<b>${provincia.nombre}</b><br>${provincia.descripcion}`);
+            });
+          };
+      </script>
+
+      <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+      <style>
+        #map {
+          width: 100%;
+          height: 500px;
+        }
+      </style>
+    <!-- Agregar el CDN de Bootstrap JS (Popper.js y Bootstrap JS) -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+
+
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-ajax@0.3.0/dist/leaflet.ajax.min.js"></script> <!-- Cargar GeoJSON -->
+
+ 
 </body>
+
 </html>

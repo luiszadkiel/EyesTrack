@@ -8,12 +8,17 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 
+
+// Configurar EJS como motor de plantillas
+app.set('view engine', 'ejs'); // Establecer EJS como motor de plantillas
+app.set('views', path.join(__dirname, 'views')); // Configurar la carpeta de vistas
+
 // Configuración de la carpeta pública
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Servir la página principal
 app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "views", "index.html"));
+    res.sendFile(path.join(__dirname, "views", "layouts", "index.html"));
   });
   
 // WebRTC Signaling
