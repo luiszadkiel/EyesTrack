@@ -118,8 +118,8 @@ def video_feed():
                 current_frame = latest_frame
                 if current_frame is None:
                     time.sleep(0.1)
-                    continue
-                
+                    continue 
+                              
                 # Convertir el frame a formato JPEG
                 _, jpeg = cv2.imencode('.jpg', current_frame)
                 frame_bytes = jpeg.tobytes()

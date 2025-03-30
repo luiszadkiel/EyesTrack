@@ -1,8 +1,9 @@
 const express = require("express");
 const router = express.Router();
+const Controller_home = require("../controladores/Controllers_home");
 
-const Controller_home = require("../controladores");
+// Definición de rutas
+router.get('/', Controller_home.home); // Esta ruta debería llamar a home()
+router.get('/Statistics_country', Controller_home.Statistics_countryCONTROL); // Esta ruta debería llamar a Statistics_countryCONTROL
 
-//Definicion de rutas
-
-router.get('/' );
+module.exports = router;

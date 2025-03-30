@@ -51,6 +51,13 @@ io.on("connection", (socket) => {
     });
 });
 
+// Importa el archivo de rutas
+const routerHome = require('./routes/Home');
+
+// Usa las rutas
+app.use("/",routerHome);
+
+
 server.listen(8888, () => {
     console.log("Servidor WebRTC en puerto 8888");
 });

@@ -4,18 +4,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transmisión en vivo - YOLOv5</title>
+    <title>🔴 Transmisión en Vivo - Detección de Armas</title>
 
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
 
 </head>
 
 <body>
-    <div class="row mb-5 ml-5 text-center">
-        <h1 >Transmisión en vivo - Detección de objetos con YOLOv5</h1>
+
+
+<!-- MENU -->
+
+<div class="content row">
+    <ul class="exo-menu">
+        <li><a class="active" href="#">Home</a></li>
+        <li><a href="Records_alerts">Records alerts</a></li>
+        <li><a href="Statistics_country">Statistics country</a></li>
+        <li><a href="State_of_alert">State of alert</a></li>
+        <li><a href="Contact">Contact</a></li>
+    </ul>
+</div>
+
+
+
+    <div class="row mb-5 pt-3 mt-5 ml-5  d-flex justify-content-center">
+        <h1 >🔴 Transmisión en Vivo - Detección de Armas</h1>
     </div>
     
 
@@ -28,13 +45,22 @@
         <div class="col ml-3 ">
             <h3>Alertas:</h3>
             <div id="alertBox" class="alert" class="">
-                ¡ALERTA! Se han detectado objetos peligrosos
+                ⚠️ ¡ALERTA! ⚠️  -- Se han detectado objetos peligrosos --
+
+                <br> <!-- Salto de línea -->
                 <div id="alertDetails"></div>
+                <br> <!-- Salto de línea -->
                 <div id="ubicacion"></div>
                 <div id="fechaExacta"></div>
-
+                <div class="buttons  mb-4 d-flex justify-content-end">
+                    <button class="btn btn-aceptar">Aceptar</button>
+                    <button class="btn btn-declinar">Declinar</button>
+                </div>
+                
             </div>
         </div>
+
+
     </div>
 
     <div class="row m-lg-4">
@@ -42,9 +68,6 @@
         </div>
  
     </div>
-
-
-
 
 
 
@@ -64,18 +87,18 @@
             // Detalles sobre la alerta
             let details = "";
             if (data.persons_count > 0) {
-                details += `Personas detectadas: ${data.persons_count}<br>`;
+                details += `🧍🏽‍♂️ Personas detectadas: ${data.persons_count}<br>`;
                  
             }
             if (data.guns_count > 0) {
-                    details += `¡ARMAS detectadas: ${data.guns_count}<br>`;
+                    details += `Arma de Fuego Detectadas: ${data.guns_count}<br>`;
                     
                 }
                 if (data.knifes_count > 0) {
-                    details += `¡CUCHILLOS detectados: ${data.knifes_count}<br>`;
+                    details += `Arma Blanca Detectados: ${data.knifes_count}<br>`;
                 }
                 if (data.danger) {
-                    details += `¡SITUACIÓN DE PELIGRO DETECTADA!<br>`;
+                    details += `🚩¡SITUACIÓN DE PELIGRO DETECTADA!🚩<br>`;
                     getLocation();
                     obtenerFechaHoraExacta();
 
@@ -87,18 +110,55 @@
                 /*setTimeout(function () {
                     alertBox.style.display = "none";
                 }, 5000);*/
+
+                const btnDeclinar = document.querySelector('.btn-declinar');
+                btnDeclinar.addEventListener('click', function () {
+                    alertBox.style.display = "none"; // Ocultar el alertBox
+                    alertDetails.innerHTML = ""; // Limpiar detalles de la alerta
+                    document.getElementById("ubicacion").innerHTML = ""; // Limpiar ubicación
+                    document.getElementById("fechaExacta").innerHTML = ""; // Limpiar fecha exacta
+                });
             });
 
             function getLocation() {
                 if (navigator.geolocation) {
                     navigator.geolocation.getCurrentPosition(function(position) {
-                        const ubicacions = `Latitud: ${position.coords.latitude}, Longitud: ${position.coords.longitude}`;
-                        document.getElementById("ubicacion").innerHTML = `Ubicación: ${ubicacions}<br>`;
+                        const ubicacion = `Latitud: ${position.coords.latitude}, Longitud: ${position.coords.longitude}`;
+                        document.getElementById("ubicacion").innerHTML = `Ubicación: ${ubicacion}<br>`;
+    
+                        // Crear el mapa y centrarlo en la ubicación actual
+                        const map = L.map('map').setView([position.coords.latitude, position.coords.longitude], 12); // Coordenadas de la ubicación actual
+                        
+                        // Cargar el mapa base (OpenStreetMap)
+                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    
+                        // Marcar la ubicación actual con un marcador
+                        L.marker([position.coords.latitude, position.coords.longitude])
+                            .addTo(map)
+                            .bindPopup(`Tu ubicación: ${ubicacion}`);
+                        
+                        // Marcar las provincias en el mapa
+                       /* const provincias = [
+                            { nombre: "Santo Domingo", lat: 18.4861, lng: -69.9312, descripcion: "Capital de la República Dominicana" },
+                            { nombre: "Santiago", lat: 19.4803, lng: -70.7129, descripcion: "Segunda ciudad más grande" },
+                            { nombre: "Puerto Plata", lat: 19.7775, lng: -70.6827, descripcion: "Famosa por sus playas" },
+                            { nombre: "La Romana", lat: 18.4237, lng: -68.9431, descripcion: "Destino turístico popular" }
+                        ];*/
+    
+                        // Marcar los puntos de las provincias
+                        provincias.forEach(provincia => {
+                            L.marker([provincia.lat, provincia.lng])
+                                .addTo(map)
+                                .bindPopup(`<b>${provincia.nombre}</b><br>${provincia.descripcion}`);
+                        });
+                    }, function(error) {
+                        alert("No se pudo obtener la ubicación.");
                     });
                 } else {
                     alert("Geolocalización no soportada");
                 }
             }
+    
 
             function obtenerFechaHoraExacta() {
                 const fecha = new Date();
@@ -120,38 +180,9 @@
 
 
       
-    <script>
-        window.onload = function() {
-            // Crear el mapa y centrarlo
-            const map = L.map('map').setView([18.7357, -70.1627], 8); // Coordenadas para la RD
-      
-            // Cargar el mapa base (OpenStreetMap)
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-      
-            // Definir las provincias (ejemplo con algunos puntos)
-            const provincias = [
-            { nombre: "Santo Domingo", lat: 18.4861, lng: -69.9312, descripcion: "Capital de la República Dominicana" },
-            { nombre: "Santiago", lat: 19.4803, lng: -70.7129, descripcion: "Segunda ciudad más grande" },
-            { nombre: "Puerto Plata", lat: 19.7775, lng: -70.6827, descripcion: "Famosa por sus playas" },
-            { nombre: "La Romana", lat: 18.4237, lng: -68.9431, descripcion: "Destino turístico popular" }
-          ];
-      
-            // Marcar los puntos de las provincias
-            provincias.forEach(provincia => {
-              L.marker([provincia.lat, provincia.lng])
-                .addTo(map)
-                .bindPopup(`<b>${provincia.nombre}</b><br>${provincia.descripcion}`);
-            });
-          };
-      </script>
+    
 
-      <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
-      <style>
-        #map {
-          width: 100%;
-          height: 500px;
-        }
-      </style>
+     
     <!-- Agregar el CDN de Bootstrap JS (Popper.js y Bootstrap JS) -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
