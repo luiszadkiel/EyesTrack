@@ -3,9 +3,159 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>UI Widgets & Charts</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dc/3.1.5/dc.min.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crossfilter2/1.5.4/crossfilter.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dc/3.1.5/dc.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <style>
+
+        body {
+            background: #24282f;
+            font-family: sans-serif;
+            color: #D3D3D3; /* Gris claro (casi blanco) */
+            margin: 0;
+            padding: 0;
+        }
+        body { text-align:center }
+        .ui-widget { position:relative; display:inline-block; width:160px; height:160px; margin:30px; border:15px solid #00aeef; border-radius:150px; text-align:center; font-family: Arial, sans-serif; box-shadow:inset 0 1px 0 rgba(0, 0, 0, 0.8), inset 0 3px 5px rgba(0,0,0,.25); box-sizing:border-box; border-bottom-color:#24282f }
+        .ui-widget .ui-value { position:absolute; left:0; right:0; top:15px; font-size:40px; }
+        .ui-widget .ui-label { position:absolute; left:0; bottom:-10px; width:100%; font-size:14px; text-transform:uppercase; color:#ffffff; font-weight:700 }
+    
+        #charts-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .map-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #map {
+            height: 290px; /* Tamaño ajustado */
+            width: 70%;
+        }
+
+
+        
+.exo-menu {
+    display: flex; /* Usamos flexbox para distribuir los elementos */
+    justify-content: space-evenly; /* Distribuye los elementos de forma equitativa */
+    align-items: center; /* Centra los items verticalmente */
+    background: #23364B;
+    width: 100%;
+}
+
+.exo-menu > li {
+    display: inline-block; /* Asegura que cada li sea un bloque en línea */
+}
+
+.exo-menu > li > a {
+    color: #ccc;
+    text-decoration: none;
+    text-transform: uppercase;
+    padding: 20px 22px;
+    display: inline-block;
+    transition: color 0.2s linear, background 0.2s linear;
+    border-radius: 48px;
+}
+
+.exo-menu > li > a.active,
+.exo-menu > li > a:hover {
+    background: #009FE1;
+    color: #fff;
+}
+
+@media (max-width: 767px) {
+    .exo-menu {
+        flex-direction: column; /* En pantallas pequeñas, cambia la orientación a vertical */
+        min-height: 58px;
+        width: 100%;
+    }
+    
+    .exo-menu > li {
+        width: 100%;
+    }
+
+    .exo-menu > li > a {
+        display: block;
+        padding: 20px 22px;
+    }
+}
+    </style>
 </head>
 <body>
-    <h1>lklklk</h1>
+
+    <!-- MENU -->
+
+<div class="content row">
+    <ul class="exo-menu">
+        <li><a  href="/">Home</a></li>
+        <li><a href="Records_alerts">Records alerts</a></li>
+        <li><a class="active" href="Statistics_country">Statistics country</a></li>
+        <li><a href="State_of_alert">State of alert</a></li>
+        <li><a href="Contact">Contact</a></li>
+    </ul>
+</div>
+ 
+
+
+
+
+    <div class="ui-widget">
+        <h1 class="ui-value">15</h1>
+        <span class="ui-label">street fights</span>
+    </div>
+    <div class="ui-widget">
+        <h1 class="ui-value">142</h1>
+        <span class="ui-label">Accident</span>
+    </div>
+    <div class="ui-widget">
+        <h1 class="ui-value">58</h1>
+        <span class="ui-label">assaults</span>
+    </div>
+    
+    <div class="map-container">
+        <div id="map"></div>
+    </div>
+
+   
+
+          
+   
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        const provincias = [
+            { nombre: "Santo Domingo", lat: 18.4861, lng: -69.9312, descripcion: "Capital de la República Dominicana" },
+            { nombre: "Santiago", lat: 19.4803, lng: -70.7129, descripcion: "Segunda ciudad más grande" },
+            { nombre: "Puerto Plata", lat: 19.7775, lng: -70.6827, descripcion: "Famosa por sus playas" },
+            { nombre: "La Romana", lat: 18.4237, lng: -68.9431, descripcion: "Destino turístico popular" },
+            { nombre: "San Cristóbal", lat: 18.4167, lng: -70.1053, descripcion: "Conocida por su historia y cultura" },
+            { nombre: "La Vega", lat: 19.222, lng: -70.529, descripcion: "Famosa por su carnaval" },
+            { nombre: "Higüey", lat: 18.615, lng: -68.707, descripcion: "Hogar de la Basílica de Nuestra Señora de la Altagracia" }
+        ];
+
+        // Crear el mapa centrado en la República Dominicana
+        const map = L.map('map').setView([18.7357, -70.1627], 7); // Coordenadas de la República Dominicana
+
+        // Añadir la capa de OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Agregar los marcadores para cada provincia
+        provincias.forEach(provincia => {
+            L.marker([provincia.lat, provincia.lng])
+                .addTo(map)
+                .bindPopup(`<b>${provincia.nombre}</b><br>${provincia.descripcion}`);
+        });
+    </script>
+
+
 </body>
 </html>

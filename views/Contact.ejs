@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contacto - Creadores</title>
+    <style>
+        body {
+            background: #24282f;
+            font-family: sans-serif;
+            color: #D3D3D3; /* Gris claro (casi blanco) */
+            margin: 0;
+            padding: 0;
+        }
+
+        
+     
+        .container {
+            width: 80%;
+            margin: auto;
+            overflow: hidden;
+        }
+        .about-creators {
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+            border-radius: 8px;
+        }
+        .about-creators h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .creator {
+            margin-bottom: 20px;
+        }
+        .creator h3 {
+            margin: 0;
+            color: #333;
+        }
+        .creator p {
+            color: #666;
+            font-size: 16px;
+        }
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+            position: fixed;
+            width: 100%;
+            bottom: 0;
+        }
+
+
+        
+.exo-menu {
+    display: flex; /* Usamos flexbox para distribuir los elementos */
+    justify-content: space-evenly; /* Distribuye los elementos de forma equitativa */
+    align-items: center; /* Centra los items verticalmente */
+    background: #23364B;
+    width: 100%;
+}
+
+.exo-menu > li {
+    display: inline-block; /* Asegura que cada li sea un bloque en línea */
+}
+
+.exo-menu > li > a {
+    color: #ccc;
+    text-decoration: none;
+    text-transform: uppercase;
+    padding: 20px 22px;
+    display: inline-block;
+    transition: color 0.2s linear, background 0.2s linear;
+    border-radius: 48px;
+}
+
+.exo-menu > li > a.active,
+.exo-menu > li > a:hover {
+    background: #009FE1;
+    color: #fff;
+}
+
+@media (max-width: 767px) {
+    .exo-menu {
+        flex-direction: column; /* En pantallas pequeñas, cambia la orientación a vertical */
+        min-height: 58px;
+        width: 100%;
+    }
+    
+    .exo-menu > li {
+        width: 100%;
+    }
+
+    .exo-menu > li > a {
+        display: block;
+        padding: 20px 22px;
+    }}
+    </style>
+</head>
+<body>
+
+        <div class="content row">
+            <ul class="exo-menu">
+                <li><a  href="/">Home</a></li>
+                <li><a href="Records_alerts">Records alerts</a></li>
+                <li><a href="Statistics_country">Statistics country</a></li>
+                <li><a href="State_of_alert">State of alert</a></li>
+                <li><a class="active" href="Contact">Contact</a></li>
+            </ul>
+        </div>
+
+<div class="container">
+
+    <div class="about-creators">
+        
+        
+        <h2>Información sobre los Creadores</h2>
+        <div class="creator">
+            <h3>Juan Pérez</h3>
+            <p>Juan es un desarrollador web con más de 5 años de experiencia. Ha trabajado en varios proyectos de software, y su pasión es crear aplicaciones útiles y fáciles de usar.</p>
+            <p>Email: <a href="mailto:juan@ejemplo.com">juan@ejemplo.com</a></p>
+        </div>
+        
+        <div class="creator">
+            <h3>María López</h3>
+            <p>María es diseñadora gráfica y especialista en experiencia de usuario. Le encanta crear interfaces atractivas y fáciles de navegar para todo tipo de usuarios.</p>
+            <p>Email: <a href="mailto:maria@ejemplo.com">maria@ejemplo.com</a></p>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <p>&copy; 2025 Tu Empresa. Todos los derechos reservados.</p>
+</footer>
+
+</body>
+</html>

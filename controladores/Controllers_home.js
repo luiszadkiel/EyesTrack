@@ -8,3 +8,7 @@ exports.home = (req, res) => {
 exports.Statistics_countryCONTROL = (req, res) => {
     res.render('Records_alerts'); // Asegúrate de que esta vista exista
 };
+
+exports.Contact_CONTROL = (req, res) => {
+    res.render('Contact.ejs'); // Asegúrate de que esta vista exista
+};
