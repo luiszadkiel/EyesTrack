@@ -15,6 +15,7 @@
     "nodemon": "^3.1.9"
   },
   "dependencies": {
+    "ejs": "^3.1.10",
     "express": "^4.21.2",
     "eyetrack": "file:",
     "socket.io": "^4.8.1",

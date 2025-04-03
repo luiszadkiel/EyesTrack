@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔴 Live broadcast </title>
+
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+
+</head>
+
+<body>
+
+
+<!-- MENU -->
+
+<div class="content row">
+    <ul class="exo-menu">
+        <li><a class="active" href="#">Home</a></li>
+        <li><a href="Records_alerts">Records alerts</a></li>
+        <li><a href="Statistics_country">Statistics country</a></li>
+        <li><a href="State_of_alert">State of alert</a></li>
+        <li><a href="Contact">Contact</a></li>
+    </ul>
+</div>
+
+
+
+    <div class="row mb-5 pt-3 mt-5 ml-5  d-flex justify-content-center">
+        <h1 >🔴 Live broadcast - Incident detection</h1>
+    </div>
+    
+
+    <div class="row">
+        <div  class="col ml-4 ">
+            <!-- Imagen con ancho específico utilizando clases de Bootstrap -->
+            <img id="camara" src="http://127.0.0.1:5000/video_feed" class="img-fluid w-220 h-330" alt="Transmisión en vivo" />
+        </div>
+
+        <div class="col ml-3 ">
+            <h3>Alerts:</h3>
+            <div id="alertBox" class="alert" class="">
+                ⚠️ ¡ALERTA! ⚠️  -- Se han detectado objetos peligrosos --
+
+                <br> <!-- Salto de línea -->
+                <div id="alertDetails"></div>
+                <br> <!-- Salto de línea -->
+                <div id="ubicacion"></div>
+                <div id="fechaExacta"></div>
+                <div class="buttons  mb-4 d-flex justify-content-end">
+                    <button class="btn btn-aceptar">Aceptar</button>
+                    <button class="btn btn-declinar">Declinar</button>
+                </div>
+                
+            </div>
+        </div>
+
+
+    </div>
+
+    <div class="row m-lg-4">
+        <div class="col" id="map">
+        </div>
+ 
+    </div>
+
+
+
+
+    <script>
+        // Conectar al WebSocket
+        const socket = io('http://127.0.0.1:5000');
+
+        // Mostrar alerta cuando se reciben datos
+        socket.on('alert_update', function (data) {
+            const alertBox = document.getElementById('alertBox');
+            const alertDetails = document.getElementById('alertDetails');
+
+            // Mostrar la alerta
+            alertBox.style.display = "block";
+        
+            // Detalles sobre la alerta
+            let details = "";
+            if (data.persons_count > 0) {
+                details += `🧍🏽‍♂️ Personas detectadas: ${data.persons_count}<br>`;
+                 
+            }
+            if (data.guns_count > 0) {
+                    details += `Arma de Fuego Detectadas: ${data.guns_count}<br>`;
+                    
+                }
+                if (data.knifes_count > 0) {
+                    details += `Arma Blanca Detectados: ${data.knifes_count}<br>`;
+                }
+                if (data.danger) {
+                    details += `🚩¡SITUACIÓN DE PELIGRO DETECTADA!🚩<br>`;
+                    getLocation();
+                    obtenerFechaHoraExacta();
+
+                }
+
+                alertDetails.innerHTML = details;
+
+                // Auto-ocultar después de 5 segundos
+                /*setTimeout(function () {
+                    alertBox.style.display = "none";
+                }, 5000);*/
+
+                const btnDeclinar = document.querySelector('.btn-declinar');
+                btnDeclinar.addEventListener('click', function () {
+                    alertBox.style.display = "none"; // Ocultar el alertBox
+                    alertDetails.innerHTML = ""; // Limpiar detalles de la alerta
+                    document.getElementById("ubicacion").innerHTML = ""; // Limpiar ubicación
+                    document.getElementById("fechaExacta").innerHTML = ""; // Limpiar fecha exacta
+                });
+            });
+
+            function getLocation() {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(function(position) {
+                        const ubicacion = `Latitud: ${position.coords.latitude}, Longitud: ${position.coords.longitude}`;
+                        document.getElementById("ubicacion").innerHTML = `Ubicación: ${ubicacion}<br>`;
+    
+                        // Crear el mapa y centrarlo en la ubicación actual
+                        const map = L.map('map').setView([position.coords.latitude, position.coords.longitude], 12); // Coordenadas de la ubicación actual
+                        
+                        // Cargar el mapa base (OpenStreetMap)
+                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    
+                        // Marcar la ubicación actual con un marcador
+                        L.marker([position.coords.latitude, position.coords.longitude])
+                            .addTo(map)
+                            .bindPopup(`Tu ubicación: ${ubicacion}`);
+                        
+                      
+    
+                        // Marcar los puntos de las provincias
+                        provincias.forEach(provincia => {
+                            L.marker([provincia.lat, provincia.lng])
+                                .addTo(map)
+                                .bindPopup(`<b>${provincia.nombre}</b><br>${provincia.descripcion}`);
+                        });
+                    }, function(error) {
+                        alert("No se pudo obtener la ubicación.");
+                    });
+                } else {
+                    alert("Geolocalización no soportada");
+                }
+            }
+    
+
+            function obtenerFechaHoraExacta() {
+                const fecha = new Date();
+              
+                const dia = String(fecha.getDate()).padStart(2, '0');
+                const mes = String(fecha.getMonth() + 1).padStart(2, '0'); // Los meses empiezan en 0
+                const anio = fecha.getFullYear();
+              
+                const horas = String(fecha.getHours()).padStart(2, '0');
+                const minutos = String(fecha.getMinutes()).padStart(2, '0');
+                const segundos = String(fecha.getSeconds()).padStart(2, '0');
+              
+                const fechaExacta = `${dia}-${mes}-${anio} ${horas}:${minutos}:${segundos}`;
+                document.getElementById("fechaExacta").innerHTML = `fechaExacta: ${fechaExacta}<br>`;
+            }
+              
+              
+    </script>
+
+
+      
+    
+
+     
+    <!-- Agregar el CDN de Bootstrap JS (Popper.js y Bootstrap JS) -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+
+
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-ajax@0.3.0/dist/leaflet.ajax.min.js"></script> <!-- Cargar GeoJSON -->
+
+ 
+</body>
+
+</html>

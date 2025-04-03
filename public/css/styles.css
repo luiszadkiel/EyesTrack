@@ -1,0 +1,152 @@
+body {
+    background: #24282f;
+    font-family: sans-serif;
+    color: #D3D3D3; /* Gris claro (casi blanco) */
+    margin: 0;
+    padding: 0;
+}
+
+h1 {
+    text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.7); /* Sombra al texto */
+    color: white; /* Color blanco */
+}
+
+#camara {
+    box-shadow: 10px 0 20px rgba(0, 0, 0, 0.6); /* Sombra sutil hacia la derecha */
+    transition: box-shadow 0.3s ease, transform 0.3s ease; /* Suaviza el cambio de sombra y escala */
+}
+
+/* Cambiar la sombra a verde al hacer hover */
+#camara:hover {
+    box-shadow: 10px 0 20px rgba(0, 255, 0, 0.8); /* Sombra verde al hacer hover */
+    transform: scale(1.05); /* Efecto de agrandar ligeramente la imagen */
+}
+
+
+/* Estilos básicos de la alerta */
+.alert {
+    padding: 10px;
+    margin-top: 10px;
+    background-color: #f44336;
+    color: white;
+    border-radius: 5px;
+    display: none;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.8);
+    transition: box-shadow 0.3s, transform 0.3s;
+    animation: bounceIn 0.5s ease-out; /* Animación añadida */
+}
+
+/* Efecto rebote usando keyframes */
+@keyframes bounceIn {
+    0% {
+        transform: scale(0) translateY(20px);
+    }
+    60% {
+        transform: scale(1.1) translateY(-10px);
+    }
+    100% {
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* Efecto al hacer hover o focus sobre la alerta */
+.alert:hover, .alert:focus, .alert:active {
+    box-shadow: 0 8px 16px 3px rgb(255, 45, 17);
+    transform: translateY(-3px) scale(1.05);
+    transform: scale(1.05); /* Efecto de agrandar ligeramente la imagen */
+}
+
+
+.btn {
+    padding: 10px 20px;
+    margin: 0 10px;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 5px;
+}
+.btn-aceptar {
+    background-color: #27ae60;
+    color: white;
+}
+.btn-declinar {
+    background-color: #a51404;
+    color: white;
+}
+
+#map {
+    width: 100%;
+    height: 500px;
+  }
+
+
+
+
+ 
+*,
+:after,
+:before {
+    box-sizing: border-box;
+}
+
+ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-radius: 48px;
+
+}
+
+a, a:hover, a.active, a:active, a:visited, a:focus {
+    color: #fefefe;
+    text-decoration: none;
+}
+
+.content {
+    margin: 50px 100px 0px 100px;
+}
+
+.exo-menu {
+    display: flex; /* Usamos flexbox para distribuir los elementos */
+    justify-content: space-evenly; /* Distribuye los elementos de forma equitativa */
+    align-items: center; /* Centra los items verticalmente */
+    background: #23364B;
+    width: 100%;
+}
+
+.exo-menu > li {
+    display: inline-block; /* Asegura que cada li sea un bloque en línea */
+}
+
+.exo-menu > li > a {
+    color: #ccc;
+    text-decoration: none;
+    text-transform: uppercase;
+    padding: 20px 22px;
+    display: inline-block;
+    transition: color 0.2s linear, background 0.2s linear;
+    border-radius: 48px;
+}
+
+.exo-menu > li > a.active,
+.exo-menu > li > a:hover {
+    background: #009FE1;
+    color: #fff;
+}
+
+@media (max-width: 767px) {
+    .exo-menu {
+        flex-direction: column; /* En pantallas pequeñas, cambia la orientación a vertical */
+        min-height: 58px;
+        width: 100%;
+    }
+    
+    .exo-menu > li {
+        width: 100%;
+    }
+
+    .exo-menu > li > a {
+        display: block;
+        padding: 20px 22px;
+    }
+}

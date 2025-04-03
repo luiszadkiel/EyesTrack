@@ -8,9 +8,19 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 
-// Configuración de la carpeta pública
-app.use(express.static(path.join(__dirname, "public")));
 
+// Configurar EJS como motor de plantillas
+app.set('view engine', 'ejs'); // Establecer EJS como motor de plantillas
+app.set('views', path.join(__dirname, 'views')); // Configurar la carpeta de vistas
+
+// Configuración de la carpeta pública
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Servir la página principal
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "views", "layouts", "index.html"));
+  });
+  
 // WebRTC Signaling
 let peerConnections = {};
 
@@ -41,8 +51,13 @@ io.on("connection", (socket) => {
     });
 });
 
+// Importa el archivo de rutas
+const routerHome = require('./routes/Home');
+
+// Usa las rutas
+app.use("/",routerHome);
+
+
 server.listen(8888, () => {
     console.log("Servidor WebRTC en puerto 8888");
 });
-
-

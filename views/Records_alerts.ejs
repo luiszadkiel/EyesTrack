@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dc/3.1.5/dc.min.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crossfilter2/1.5.4/crossfilter.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dc/3.1.5/dc.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <style>
+
+        body {
+            background: #24282f;
+            font-family: sans-serif;
+            color: #D3D3D3; /* Gris claro (casi blanco) */
+            margin: 0;
+            padding: 0;
+        }
+        body { text-align:center }
+        .ui-widget { position:relative; display:inline-block; width:160px; height:160px; margin:30px; border:15px solid #00aeef; border-radius:150px; text-align:center; font-family: Arial, sans-serif; box-shadow:inset 0 1px 0 rgba(0, 0, 0, 0.8), inset 0 3px 5px rgba(0,0,0,.25); box-sizing:border-box; border-bottom-color:#24282f }
+        .ui-widget .ui-value { position:absolute; left:0; right:0; top:15px; font-size:40px; }
+        .ui-widget .ui-label { position:absolute; left:0; bottom:-10px; width:100%; font-size:14px; text-transform:uppercase; color:#ffffff; font-weight:700 }
+    
+        #charts-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .map-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #map {
+            height: 290px; /* Tamaño ajustado */
+            width: 70%;
+        }
+
+
+        
+.exo-menu {
+    display: flex; /* Usamos flexbox para distribuir los elementos */
+    justify-content: space-evenly; /* Distribuye los elementos de forma equitativa */
+    align-items: center; /* Centra los items verticalmente */
+    background: #23364B;
+    width: 100%;
+}
+
+.exo-menu > li {
+    display: inline-block; /* Asegura que cada li sea un bloque en línea */
+}
+
+.exo-menu > li > a {
+    color: #ccc;
+    text-decoration: none;
+    text-transform: uppercase;
+    padding: 20px 22px;
+    display: inline-block;
+    transition: color 0.2s linear, background 0.2s linear;
+    border-radius: 48px;
+}
+
+.exo-menu > li > a.active,
+.exo-menu > li > a:hover {
+    background: #009FE1;
+    color: #fff;
+}
+
+@media (max-width: 767px) {
+    .exo-menu {
+        flex-direction: column; /* En pantallas pequeñas, cambia la orientación a vertical */
+        min-height: 58px;
+        width: 100%;
+    }
+    
+    .exo-menu > li {
+        width: 100%;
+    }
+
+    .exo-menu > li > a {
+        display: block;
+        padding: 20px 22px;
+    }
+}
+
+#chart-container {
+    width: 70%;
+    margin: 20px auto;
+    background: #2f3b45;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.dc-chart g text {
+    fill: white;
+}
+    </style>
+</head>
+<body>
+
+    <!-- MENU -->
+
+<div class="content row">
+    <ul class="exo-menu">
+        <li><a  href="/">Home</a></li>
+        <li><a href="Records_alerts">Records alerts</a></li>
+        <li><a class="active" href="Statistics_country">Statistics country</a></li>
+        <li><a href="State_of_alert">State of alert</a></li>
+        <li><a href="Contact">Contact</a></li>
+    </ul>
+</div>
+ 
+
+
+
+
+    <div class="ui-widget">
+        <h1 class="ui-value">15</h1>
+        <span class="ui-label">street fights</span>
+    </div>
+    <div class="ui-widget">
+        <h1 class="ui-value">142</h1>
+        <span class="ui-label">Accident</span>
+    </div>
+    <div class="ui-widget">
+        <h1 class="ui-value">58</h1>
+        <span class="ui-label">assaults</span>
+    </div>
+    
+    <div class="map-container">
+        <div id="map"></div>
+    </div>
+
+        <!-- Gráfica de columnas -->
+        <div id="chart-container">
+            <h2>Cantidad de alertas por provincia</h2>
+            <div id="bar-chart"></div>
+        </div>
+
+
+   
+
+          
+   
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        const provincias = [
+    { nombre: "Santo Domingo", lat: 18.4861, lng: -69.9312, descripcion: "Capital de la República Dominicana" },
+    { nombre: "Santiago", lat: 19.4803, lng: -70.7129, descripcion: "Segunda ciudad más grande" },
+    { nombre: "Puerto Plata", lat: 19.7775, lng: -70.6827, descripcion: "Famosa por sus playas" },
+    { nombre: "La Romana", lat: 18.4237, lng: -68.9431, descripcion: "Destino turístico popular" },
+    { nombre: "San Cristóbal", lat: 18.4167, lng: -70.1053, descripcion: "Conocida por su historia y cultura" },
+    { nombre: "La Vega", lat: 19.222, lng: -70.529, descripcion: "Famosa por su carnaval" },
+    { nombre: "Higüey", lat: 18.615, lng: -68.707, descripcion: "Hogar de la Basílica de Nuestra Señora de la Altagracia" },
+    { nombre: "San Pedro de Macorís", lat: 18.4500, lng: -69.3000, descripcion: "Conocida por su béisbol y cultura" },
+    { nombre: "Bonao", lat: 18.9333, lng: -70.4000, descripcion: "Ciudad industrial y minera" },
+    { nombre: "Barahona", lat: 18.2085, lng: -71.1008, descripcion: "Destino ecológico y playas hermosas" },
+    { nombre: "Monte Cristi", lat: 19.8486, lng: -71.6459, descripcion: "Famosa por sus manglares y Morro" },
+    { nombre: "Azua", lat: 18.4536, lng: -70.7349, descripcion: "Con gran historia y producción agrícola" },
+    { nombre: "San Juan", lat: 18.8052, lng: -71.2290, descripcion: "Conocida como la ciudad de los poetas" },
+    { nombre: "Dajabón", lat: 19.5480, lng: -71.7083, descripcion: "Frontera con Haití y comercio vibrante" },
+    { nombre: "Moca", lat: 19.3907, lng: -70.5248, descripcion: "Conocida por su producción avícola" },
+    { nombre: "Nagua", lat: 19.3836, lng: -69.8474, descripcion: "Famosa por sus playas y cocos" },
+    { nombre: "Cotuí", lat: 19.0527, lng: -70.1494, descripcion: "Conocida por la minería de oro" },
+    { nombre: "El Seibo", lat: 18.7654, lng: -69.038, descripcion: "Famoso por su ganadería y festivales" },
+    { nombre: "Hato Mayor", lat: 18.7622, lng: -69.2578, descripcion: "Conocida por sus recursos naturales" },
+    { nombre: "Samaná", lat: 19.2056, lng: -69.3369, descripcion: "Turismo ecológico y avistamiento de ballenas" },
+    { nombre: "Monte Plata", lat: 18.8103, lng: -69.7836, descripcion: "Conocida por su producción agrícola" },
+    { nombre: "Valverde", lat: 19.5836, lng: -71.0836, descripcion: "Famosa por la producción de banano" },
+    { nombre: "Peravia", lat: 18.2806, lng: -70.3314, descripcion: "Capital del mango dominicano" },
+    { nombre: "San José de Ocoa", lat: 18.5479, lng: -70.5069, descripcion: "Zona montañosa y cafetalera" },
+    { nombre: "Sánchez Ramírez", lat: 19.0515, lng: -70.1558, descripcion: "Región minera y de embalses" },
+    { nombre: "Baoruco", lat: 18.4861, lng: -71.4173, descripcion: "Conocida por su producción de uvas" },
+    { nombre: "Independencia", lat: 18.4921, lng: -71.6433, descripcion: "Hogar del Lago Enriquillo" },
+    { nombre: "Pedernales", lat: 18.0389, lng: -71.7444, descripcion: "Playas paradisíacas y naturaleza única" },
+    { nombre: "Elías Piña", lat: 19.1281, lng: -71.6983, descripcion: "Frontera con Haití y comercio binacional" }
+];
+
+
+ // Datos de alertas por provincia (Ejemplo)
+ const alertas = provincias.map(provincia => ({
+    provincia: provincia.nombre,
+    cantidad: Math.floor(Math.random() * 50) + 10 // Aleatorio entre 10 y 50 alertas
+}));
+
+// Configuración de Crossfilter
+const ndx = crossfilter(alertas);
+const dimension = ndx.dimension(d => d.provincia);
+const group = dimension.group().reduceSum(d => d.cantidad);
+
+// Crear la gráfica de columnas
+const barChart = dc.barChart("#bar-chart");
+
+barChart
+    .width(1000)
+    .height(300)
+    .dimension(dimension)
+    .group(group)
+    .x(d3.scaleBand())
+    .xUnits(dc.units.ordinal)
+    .yAxisLabel("Cantidad de alertas")
+    .brushOn(false)
+    .colors("#00aeef");
+
+dc.renderAll();
+
+        // Crear el mapa centrado en la República Dominicana
+        const map = L.map('map').setView([18.7357, -70.1627], 7); // Coordenadas de la República Dominicana
+
+        // Añadir la capa de OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Agregar los marcadores para cada provincia
+        provincias.forEach(provincia => {
+            L.marker([provincia.lat, provincia.lng])
+                .addTo(map)
+                .bindPopup(`<b>${provincia.nombre}</b><br>${provincia.descripcion}`);
+        });
+    </script>
+
+
+</body>
+</html>
